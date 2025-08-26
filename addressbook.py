@@ -1,5 +1,5 @@
 from collections import UserDict
-from datetime import datetime
+from datetime import datetime, date
 
 class Field:
     """ Базовий клас для полів запису """
@@ -102,37 +102,16 @@ class AddressBook(UserDict):
         return "\n".join(str(record) for record in self.data.values())
 
     def get_upcoming_birthdays(self):
-        pass
+        upcoming_birthdays = []
+        today = date.today()
 
-# # Створення нової адресної книги
-# book = AddressBook()
-#
-# # Створення запису для John
-# john_record = Record("John")
-# john_record.add_phone("1234567890")
-# john_record.add_phone("5555555555")
-#
-# # Додавання запису John до адресної книги
-# book.add_record(john_record)
-#
-# # Створення та додавання нового запису для Jane
-# jane_record = Record("Jane")
-# jane_record.add_phone("9876543210")
-# book.add_record(jane_record)
-#
-# # Виведення всіх записів у книз
-#
-# print(book)
-#
-# # Знаходження та редагування телефону для John
-# john = book.find("John")
-# john.edit_phone("1234567890", "1112223333")
-#
-# print(john)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
-#
-# # Пошук конкретного телефону у записі John
-# found_phone = john.find_phone("5555555555")
-# print(f"{john.name}: {found_phone}")  # Виведення: John: 5555555555
-#
-# # Видалення запису Jane
-# book.delete("Jane")
+        for record in self.values():
+            if record.birthday is None:
+                continue
+            birthday_date = datetime.strptime(record.birthday.value, "%d.%m.%Y").date()
+            birthday_this_year = birthday_date.replace(year=today.year)
+
+            delta = (birthday_this_year - today).days
+            if 0 <= delta <= 7:
+                upcoming_birthdays.append(f"{record.name.value}: {record.birthday.value}")
+        return upcoming_birthdays

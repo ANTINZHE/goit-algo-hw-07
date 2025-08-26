@@ -80,7 +80,10 @@ def show_all(book):
     return book
 
 def birthdays(book):
-    pass
+    records = book.get_upcoming_birthdays()
+    if not records:
+        return "No upcoming birthdays"
+    return "\n".join(records)
 
 def main():
     """ Головна функція """
@@ -110,7 +113,7 @@ def main():
             case "all":
                 print(show_all(book))
             case "birthdays":
-                pass
+                print(birthdays(book))
             case _:
                 print("Invalid command.")
 
