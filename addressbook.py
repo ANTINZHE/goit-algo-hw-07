@@ -1,5 +1,5 @@
 from collections import UserDict
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 class Field:
     """ Базовий клас для полів запису """
@@ -108,10 +108,25 @@ class AddressBook(UserDict):
         for record in self.values():
             if record.birthday is None:
                 continue
+
             birthday_date = datetime.strptime(record.birthday.value, "%d.%m.%Y").date()
             birthday_this_year = birthday_date.replace(year=today.year)
 
+            # Якщо ДН уже було цього року, переносимо на наступний рік
+            if birthday_this_year < today:
+                birthday_this_year = birthday_this_year.replace(year=today.year + 1)
+
             delta = (birthday_this_year - today).days
             if 0 <= delta <= 7:
-                upcoming_birthdays.append(f"{record.name.value}: {record.birthday.value}")
+                congratulation_date = birthday_this_year
+
+                # Якщо це субота або неділя → переносимо на понеділок
+                if congratulation_date.weekday() in (5, 6):
+                    days_to_monday = 7 - congratulation_date.weekday()
+                    congratulation_date = congratulation_date + timedelta(days=days_to_monday)
+
+                upcoming_birthdays.append(
+                    f"{record.name.value}: {congratulation_date.strftime('%d.%m.%Y')}"
+                )
+
         return upcoming_birthdays

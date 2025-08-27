@@ -10,16 +10,16 @@ def input_error(func):
             return "Enter the argument for the command"
         except KeyError:
             return "Contact not found."
+        except AttributeError:
+            return "Record does not exist"
     return inner
 
+@input_error
 def parse_input(user_input):
     """ Функція розбиття введеного рядку """
-    try:
-        cmd, *args = user_input.split()
-        cmd = cmd.strip().lower()
-        return cmd, *args
-    except ValueError:
-        return "Please give command"
+    cmd, *args = user_input.split()
+    cmd = cmd.strip().lower()
+    return cmd, *args
 
 @input_error
 def add_contact(args, book):
@@ -38,38 +38,28 @@ def add_contact(args, book):
 def add_birthday(args, book):
     name, date_str = args
     record = book.find(name)
-    if record is None:
-        raise KeyError
     record.add_birthday(date_str)
     return "Birthday added"
 
+@input_error
 def change_contact(args, book):
     """ Функція зміни контакту """
-    try:
-        name, old_phone, new_phone = args
-        record = book.find(name)
-        if record is None:
-            return "Contact not found"
-        record.edit_phone(old_phone, new_phone)
-        return "Contact update"
-    except ValueError:
-        return "Give me name, old number and new number"
+    name, old_phone, new_phone = args
+    record = book.find(name)
+    record.edit_phone(old_phone, new_phone)
+    return "Contact update"
 
 @input_error
 def show_phone(args, book):
     """ Функція відображення телефону """
     name = args[0] # Якщо не ввести args, то виведе помилку IndexError
     record = book.find(name)
-    if name is None:
-        return "Contact not found."
     return f"{', '.join(p.value for p in record.phones)}"
 
 @input_error
 def show_birthday(args, book):
     name = args[0]
     record = book.find(name)
-    if record is None:
-        raise KeyError
     if record.birthday is None:
         return f"Birthday not set for {name}"
     return f"Birthday for {name}: {record.birthday}"
@@ -79,6 +69,7 @@ def show_all(book):
     """ Функція відображення усіх контактів """
     return book
 
+@input_error
 def birthdays(book):
     records = book.get_upcoming_birthdays()
     if not records:
